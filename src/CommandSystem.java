@@ -15,7 +15,6 @@ public class CommandSystem {
             System.out.print("> ");
             String line = scanner.nextLine().trim();
             if (line.isEmpty()) continue;
-            System.out.println(line);
             boolean shouldExit = handleCommand(line);
             if (shouldExit) break;
         }
