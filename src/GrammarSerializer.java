@@ -9,9 +9,9 @@ public class GrammarSerializer {
 
         for (int i = 0; i < g.getRules().size(); i++) {
             Rule r = g.getRules().get(i);
-            String line = r.getLsd().toString() + " -> ";
-            for (int j = 0; j < r.getRsd().size(); j++) {
-                line = line + r.getRsd().get(j).toString();
+            String line = r.getLhs().toString() + " -> ";
+            for (int j = 0; j < r.getRhs().size(); j++) {
+                line = line + r.getRhs().get(j).toString();
             }
             lines.add(line);
         }

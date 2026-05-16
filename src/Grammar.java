@@ -41,9 +41,9 @@ public class Grammar {
 
     public void addRule(Rule rule) {
         rules.add(rule);
-        nonTerminals.add(rule.getLsd());
-        for (int i = 0; i < rule.getRsd().size(); i++) {
-            Symbol s = rule.getRsd().get(i);
+        nonTerminals.add(rule.getLhs());
+        for (int i = 0; i < rule.getRhs().size(); i++) {
+            Symbol s = rule.getRhs().get(i);
             if (s.isTerminal()) {
                 terminals.add(s);
             } else {
