@@ -11,6 +11,8 @@ public class CommandSystem {
     private GrammarSerializer serializer;
     private GrammarOperations ops;
     private GrammarAnalysis analysis;
+    private ChomskyTransformer chomskyTransformer;
+    private CYKAlgorithm cykAlgo;
     private String currentFilePath;
 
     public CommandSystem() {
@@ -19,6 +21,8 @@ public class CommandSystem {
         this.serializer = new GrammarSerializer();
         this.ops = new GrammarOperations();
         this.analysis = new GrammarAnalysis();
+        this.chomskyTransformer = new ChomskyTransformer();
+        this.cykAlgo = new CYKAlgorithm();
         this.currentFilePath = null;
     }
 
@@ -62,8 +66,8 @@ public class CommandSystem {
                 case "iter":       cmdIter(tokens); break;
                 case "empty":      cmdEmpty(tokens); break;
                 case "chomsky":    cmdChomsky(tokens); break;
-                case "cyk":        break;
-                case "chomskify":  break;
+                case "chomskify":  cmdChomskify(tokens); break;
+                case "cyk":        cmdCyk(tokens); break;
                 default:
                     System.out.println("Unknown command: '" + cmd +
                             "'. Type 'help' for available commands.");
@@ -308,6 +312,41 @@ public class CommandSystem {
         }
     }
 
+    private void cmdChomskify(List<String> tokens) {
+        if (tokens.size() < 2) {
+            System.out.println("Usage: chomskify <id>");
+            return;
+        }
+        Grammar g = registry.get(tokens.get(1));
+        if (g == null) {
+            System.out.println("Grammar not found");
+            return;
+        }
+        String newId = registry.generateId();
+        Grammar result = chomskyTransformer.toChomsky(g, newId);
+        registry.add(result);
+        System.out.println("New grammar id (CNF): " + newId);
+    }
+
+    private void cmdCyk(List<String> tokens) {
+        if (tokens.size() < 3) {
+            System.out.println("Usage: cyk <id> <word>");
+            return;
+        }
+        Grammar g = registry.get(tokens.get(1));
+        if (g == null) {
+            System.out.println("Grammar not found");
+            return;
+        }
+        String word = tokens.get(2);
+        boolean accepts = cykAlgo.accepts(g, word);
+        if (accepts) {
+            System.out.println("Word \"" + word + "\" is in the language");
+        } else {
+            System.out.println("Word \"" + word + "\" is NOT in the language");
+        }
+    }
+
     private void cmdHelp() {
         System.out.println("Available commands:");
         System.out.println("open <file>            - load a grammar from file");
@@ -323,8 +362,8 @@ public class CommandSystem {
         System.out.println("iter <id>              - Kleene star iteration");
         System.out.println("empty <id>             - check if language is empty");
         System.out.println("chomsky <id>           - check if grammar is in CNF");
-        System.out.println("cyk <id>               - run CYK algorithm");
         System.out.println("chomskify <id>         - convert to CNF");
+        System.out.println("cyk <id> <word>        - check if word is in language");
         System.out.println("help                   - show this help");
         System.out.println("exit                   - exit the program");
     }
