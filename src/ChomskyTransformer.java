@@ -5,10 +5,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Преобразуване на произволна CFG до еквивалентна граматика
+ * в нормална форма на Чомски. Алгоритъмът работи на четири
+ * последователни стъпки, всяка от които генерира междинна граматика:
+ *
+ * <ol>
+ *   <li>Премахване на ε-правила</li>
+ *   <li>Премахване на единични правила (A → B)</li>
+ *   <li>Замяна на терминали в смесени правила</li>
+ *   <li>Разбиване на дълги десни страни до бинарни</li>
+ * </ol>
+ */
 public class ChomskyTransformer {
 
     private int counter;
 
+    /**
+     * Основният метод — прилага и четирите стъпки последователно.
+     * Резултатът е нова граматика, която приема същия език
+     * (с малки изключения при ε-думата).
+     *
+     * @param g оригиналната граматика
+     * @param newId идентификатор за новата граматика
+     */
     public Grammar toChomsky(Grammar g, String newId) {
         this.counter = 1;
 
@@ -25,6 +45,13 @@ public class ChomskyTransformer {
         return step4;
     }
 
+    /**
+     * Стъпка 1: премахва ε-правила (A → ε).
+     * Преди това намира всички "nullable" нетерминали — тези, които
+     * могат рекурсивно да изведат празната дума. След това за всяко
+     * правило генерира всички варианти, в които nullable символите
+     * са пропуснати.
+     */
     private Grammar removeEpsilonRules(Grammar g, String newId) {
         Set<Symbol> nullable = findNullable(g);
         Grammar result = new Grammar(newId, g.getStartSymbol());
@@ -49,6 +76,7 @@ public class ChomskyTransformer {
         return result;
     }
 
+    /** Намира всички нетерминали, които могат да изведат празната дума. */
     private Set<Symbol> findNullable(Grammar g) {
         Set<Symbol> nullable = new HashSet<>();
         boolean changed = true;
@@ -79,6 +107,10 @@ public class ChomskyTransformer {
         return nullable;
     }
 
+    /**
+     * Рекурсивно генерира всички комбинации, в които nullable
+     * нетерминалите могат да бъдат пропуснати или оставени.
+     */
     private void expandHelper(List<Symbol> rhs, Set<Symbol> nullable, int idx,
                               List<Symbol> current, List<List<Symbol>> result) {
         if (idx == rhs.size()) {
@@ -94,6 +126,12 @@ public class ChomskyTransformer {
         }
     }
 
+    /**
+     * Стъпка 2: премахва единичните правила A → B.
+     * За всеки нетерминал A намира всички B-та, които са достижими
+     * чрез верига от единични правила. После към A се прибавят
+     * директно не-единичните правила на тези B-та.
+     */
     private Grammar removeUnitRules(Grammar g, String newId) {
         Grammar result = new Grammar(newId, g.getStartSymbol());
 
@@ -114,6 +152,7 @@ public class ChomskyTransformer {
         return result;
     }
 
+    /** Намира всички нетерминали, достижими от start чрез единични правила. */
     private Set<Symbol> unitReachable(Grammar g, Symbol start) {
         Set<Symbol> reachable = new HashSet<>();
         reachable.add(start);
@@ -134,6 +173,11 @@ public class ChomskyTransformer {
         return reachable;
     }
 
+    /**
+     * Стъпка 3: в правила с дължина 2 или повече, всеки терминал
+     * се заменя с нов нетерминал X_n → a. Така остават или чисти
+     * терминални правила A → a, или нетерминални правила A → BC...
+     */
     private Grammar replaceTerminalsInMixed(Grammar g, String newId) {
         Grammar result = new Grammar(newId, g.getStartSymbol());
         Map<Symbol, Symbol> terminalToNT = new HashMap<>();
@@ -167,6 +211,11 @@ public class ChomskyTransformer {
         return result;
     }
 
+    /**
+     * Стъпка 4: правила с дясна страна по-дълга от 2 символа се
+     * разбиват на верига от бинарни правила. Например A → BCD
+     * става A → B X1 и X1 → CD.
+     */
     private Grammar breakLongRules(Grammar g, String newId) {
         Grammar result = new Grammar(newId, g.getStartSymbol());
 
@@ -193,12 +242,14 @@ public class ChomskyTransformer {
         return result;
     }
 
+    /** Връща нов уникален нетерминал X_n за помощ при преобразуването. */
     private Symbol newNonTerminal() {
         String name = "X" + counter;
         counter++;
         return new Symbol(name, false);
     }
 
+    /** Проверка дали правилото вече съществува в списъка (за избягване на дубликати). */
     private boolean containsRule(List<Rule> rules, Rule r) {
         for (int i = 0; i < rules.size(); i++) {
             if (rules.get(i).equals(r)) return true;

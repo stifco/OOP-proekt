@@ -3,8 +3,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Алгоритъм CYK (Cocke–Younger–Kasami) за проверка дали дадена дума
+ * принадлежи на езика на граматика в нормална форма на Чомски.
+ * Използва се динамично програмиране — попълва се таблица, в която
+ * клетката [i][j] съдържа множеството нетерминали, от които може да
+ * се изведе поднизът от позиция i до позиция j. Сложност O(n³·|G|).
+ */
 public class CYKAlgorithm {
 
+    /**
+     * Проверява дали word е в езика на g.
+     * Граматиката трябва да е в CNF — иначе резултатът не е надежден.
+     *
+     * @param g граматика (в нормална форма на Чомски)
+     * @param word дума за проверка
+     * @return true ако думата принадлежи на езика
+     */
     public boolean accepts(Grammar g, String word) {
         if (word.isEmpty()) {
             for (int i = 0; i < g.getRules().size(); i++) {
@@ -26,7 +41,7 @@ public class CYKAlgorithm {
             table.add(row);
         }
 
-        // Length-1 substrings: A -> a
+        // Първа стъпка — поднизове с дължина 1: търсим правила A -> a
         for (int i = 0; i < n; i++) {
             String c = String.valueOf(word.charAt(i));
             for (int k = 0; k < g.getRules().size(); k++) {
@@ -39,7 +54,7 @@ public class CYKAlgorithm {
             }
         }
 
-        // Longer substrings: A -> BC
+        // Втора стъпка — поднизове с нарастваща дължина: търсим правила A -> BC
         for (int len = 2; len <= n; len++) {
             for (int i = 0; i <= n - len; i++) {
                 int j = i + len - 1;

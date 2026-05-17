@@ -3,8 +3,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Трите алгебрични операции върху граматики — обединение, конкатенация
+ * и итерация (звезда на Клини). И трите работят по един и същ принцип:
+ * въвеждат нов начален символ, добавят съответните правила за него
+ * и копират правилата на входните граматики.
+ */
 public class GrammarOperations {
 
+    /**
+     * Обединение на две граматики.
+     * Въвежда нов начален символ S' с две правила: S' → S1 и S' → S2,
+     * след което копира правилата и на двете граматики.
+     *
+     * @return нова граматика, описваща обединението на езиците
+     */
     public Grammar union(Grammar g1, Grammar g2, String newId) {
         Symbol newStart = findUnusedNonTerminal(g1, g2);
         Grammar result = new Grammar(newId, newStart);
@@ -27,6 +40,12 @@ public class GrammarOperations {
         return result;
     }
 
+    /**
+     * Конкатенация на две граматики.
+     * Новият начален символ има едно правило S' → S1 S2.
+     *
+     * @return нова граматика за конкатенацията на езиците
+     */
     public Grammar concat(Grammar g1, Grammar g2, String newId) {
         Symbol newStart = findUnusedNonTerminal(g1, g2);
         Grammar result = new Grammar(newId, newStart);
@@ -46,6 +65,12 @@ public class GrammarOperations {
         return result;
     }
 
+    /**
+     * Итерация (звезда на Клини) върху граматика.
+     * Новият начален символ има две правила: S' → S S' (рекурсия)
+     * и S' → ε (базов случай). Резултатът описва нула или повече
+     * последователности от думи на оригиналния език.
+     */
     public Grammar iter(Grammar g, String newId) {
         Symbol newStart = findUnusedNonTerminal(g, null);
         Grammar result = new Grammar(newId, newStart);
@@ -64,6 +89,11 @@ public class GrammarOperations {
         return result;
     }
 
+    /**
+     * Намира главна буква, която не се използва от подадените граматики.
+     * Тя ще стане новият начален символ. Ако всички 26 букви са заети,
+     * хвърля изключение — но в практиката това почти не се случва.
+     */
     private Symbol findUnusedNonTerminal(Grammar g1, Grammar g2) {
         Set<String> used = new HashSet<>();
         for (Symbol s : g1.getNonTerminals()) {

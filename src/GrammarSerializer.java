@@ -1,8 +1,17 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Превръща граматика обратно в текстов формат — обратната операция
+ * на GrammarParser. Форматът е същият, който парсерът разбира,
+ * така че запазена граматика може отново да бъде заредена.
+ */
 public class GrammarSerializer {
 
+    /**
+     * Връща граматиката като списък от редове.
+     * Първи ред — началният символ. Следващите редове — правилата.
+     */
     public List<String> serialize(Grammar g) {
         List<String> lines = new ArrayList<>();
         lines.add(g.getStartSymbol().toString());
@@ -19,6 +28,7 @@ public class GrammarSerializer {
         return lines;
     }
 
+    /** Връща цялата граматика като един низ с нови редове. */
     public String serializeToString(Grammar g) {
         List<String> lines = serialize(g);
         String result = "";

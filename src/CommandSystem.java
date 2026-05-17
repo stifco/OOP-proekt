@@ -5,6 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Команден интерфейс на приложението.
+ * Стартира интерактивен цикъл, в който чете команди от стандартния
+ * вход, парсва ги в токени и ги пренасочва към съответния метод.
+ * Всяка от 17-те команди от заданието е реализирана като отделен
+ * cmdXxx() метод, който приема списък токени и извежда резултата.
+ */
+
+
 public class CommandSystem {
     private GrammarRegistry registry;
     private GrammarParser parser;
@@ -15,6 +24,11 @@ public class CommandSystem {
     private CYKAlgorithm cykAlgo;
     private String currentFilePath;
 
+    /**
+     * Създава нов команден интерфейс с празен регистър от граматики
+     * и инициализирани помощни класове за парсване, сериализиране,
+     * операции и анализ.
+     */
     public CommandSystem() {
         this.registry = new GrammarRegistry();
         this.parser = new GrammarParser();
@@ -25,7 +39,11 @@ public class CommandSystem {
         this.cykAlgo = new CYKAlgorithm();
         this.currentFilePath = null;
     }
-
+    /**
+     * Стартира главния цикъл — извежда подканата ">", чете ред,
+     * обработва го като команда, и така докато потребителят не
+     * напише exit.
+     */
     public void run() {
         System.out.println("CFG Manager — type 'help' for available commands.");
         Scanner scanner = new Scanner(System.in);
@@ -38,7 +56,14 @@ public class CommandSystem {
         }
         scanner.close();
     }
-
+    /**
+     * Обработва един ред с команда.
+     * Парсва токените, намира съответния метод и го изпълнява.
+     * Прихваща изключенията, така че програмата да не пада при грешка.
+     *
+     * @param line ред с команда от потребителя
+     * @return true ако програмата трябва да излезе
+     */
     public boolean handleCommand(String line) {
         List<String> tokens = tokenize(line);
         if (tokens.isEmpty()) return false;

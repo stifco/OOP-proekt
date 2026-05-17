@@ -1,8 +1,23 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Чете контекстно-свободна граматика от текст.
+ * Форматът, който използваме, е възможно най-прост:
+ * първият ред е началният символ, а всеки следващ ред е правило
+ * във вида "A -> α" (празна дясна страна значи ε-правило).
+ */
 public class GrammarParser {
 
+    /**
+     * Парсва граматика от списък редове (обикновено четени от файл).
+     * Празните редове се пропускат, така че форматът е снизходителен
+     * към допълнителни празни редове между правилата.
+     *
+     * @param id идентификатор за новата граматика
+     * @param lines редовете от файла
+     * @return готовата граматика
+     */
     public Grammar parse(String id, List<String> lines) {
         Symbol startSymbol = null;
         List<Rule> tempRules = new ArrayList<>();
@@ -26,6 +41,15 @@ public class GrammarParser {
         return g;
     }
 
+    /**
+     * Парсва един ред като правило.
+     * Намира стрелката "->", лявата страна става нетерминал,
+     * а дясната — последователност от символи (интервалите се пропускат).
+     *
+     * @param line ред във формат "A -> α"
+     * @return новото правило
+     * @throws IllegalArgumentException ако стрелката липсва
+     */
     public Rule parseRule(String line) {
         int arrowIdx = line.indexOf("->");
         if (arrowIdx == -1) {
